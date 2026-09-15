@@ -1,0 +1,41 @@
+name: Crawl Website
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: "Website URL, e.g. https://example.com"
+        required: true
+        type: string
+      max_pages:
+        description: "Maximum pages to scan"
+        required: false
+        default: "50000"
+        type: string
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Crawl website
+        run: python crawler.py "${{ inputs.url }}" --max-pages "${{ inputs.max_pages }}"
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: website-map
+          path: |
+            site-map.csv
+            site-map.txt
+            summary.txt
